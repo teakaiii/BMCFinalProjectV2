@@ -1,11 +1,12 @@
 
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Import GoogleFonts
-import 'package:provider/provider.dart'; // Import Provider
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:myapp/providers/cart_provider.dart';
 import 'package:myapp/screens/auth_wrapper.dart';
 
 void main() async {
@@ -15,27 +16,24 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => CartProvider()),
+      ],
       child: const MyApp(),
     ),
   );
   FlutterNativeSplash.remove();
 }
 
-// ThemeProvider class to manage the theme state
 class ThemeProvider with ChangeNotifier {
-  ThemeMode _themeMode = ThemeMode.system; // Default to system theme
+  ThemeMode _themeMode = ThemeMode.light;
 
   ThemeMode get themeMode => _themeMode;
 
   void toggleTheme() {
     _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    notifyListeners();
-  }
-
-  void setSystemTheme() {
-    _themeMode = ThemeMode.system;
     notifyListeners();
   }
 }
@@ -45,82 +43,52 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Using the blue from the logo as our seed color
-    const Color primarySeedColor = Color(0xFF0000FF);
+    const Color primaryColor = Color(0xFF4A90E2);
+    const Color backgroundColor = Colors.white;
+    const Color textColor = Colors.black;
 
-    // Define a common TextTheme using a font that matches the modern, clean aesthetic
     final TextTheme appTextTheme = TextTheme(
-      displayLarge: GoogleFonts.oswald(fontSize: 57, fontWeight: FontWeight.bold, letterSpacing: -0.5),
-      titleLarge: GoogleFonts.roboto(fontSize: 22, fontWeight: FontWeight.w500),
-      bodyMedium: GoogleFonts.openSans(fontSize: 14, height: 1.5),
-      labelLarge: GoogleFonts.roboto(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0.5),
+      displayLarge: GoogleFonts.playfairDisplay(fontSize: 48, fontWeight: FontWeight.bold, color: textColor),
+      titleLarge: GoogleFonts.playfairDisplay(fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
+      bodyLarge: GoogleFonts.lato(fontSize: 16, color: textColor),
+      bodyMedium: GoogleFonts.lato(fontSize: 14, color: textColor.withAlpha(204)), // 80% opacity
+      labelLarge: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
     );
 
-    // Light Theme
-    final ThemeData lightTheme = ThemeData(
+    final ThemeData theme = ThemeData(
       useMaterial3: true,
+      scaffoldBackgroundColor: backgroundColor,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: primarySeedColor,
+        seedColor: primaryColor,
         brightness: Brightness.light,
-        primary: primarySeedColor,
+        surface: backgroundColor,
+        onSurface: textColor,
+        primary: primaryColor,
         onPrimary: Colors.white,
-        secondary: Colors.amber, // A contrasting color
-        onSecondary: Colors.black,
-        surface: Colors.white,
-        onSurface: Colors.black,
-        background: const Color(0xFFF7F7F7), // A very light grey background
-        onBackground: Colors.black,
       ),
       textTheme: appTextTheme,
       appBarTheme: AppBarTheme(
-        backgroundColor: primarySeedColor,
-        foregroundColor: Colors.white,
-        titleTextStyle: GoogleFonts.oswald(fontSize: 24, fontWeight: FontWeight.bold),
+        backgroundColor: backgroundColor,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: textColor),
+        titleTextStyle: GoogleFonts.lato(fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
         centerTitle: true,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: primarySeedColor,
+          backgroundColor: primaryColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.bold),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          textStyle: appTextTheme.labelLarge,
         ),
       ),
-    );
-
-    // Dark Theme
-    final ThemeData darkTheme = ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primarySeedColor,
-        brightness: Brightness.dark,
-        primary: primarySeedColor,
-        onPrimary: Colors.white,
-        secondary: Colors.amber,
-        onSecondary: Colors.black,
-        surface: const Color(0xFF121212),
-        onSurface: Colors.white,
-        background: const Color(0xFF1E1E1E),
-        onBackground: Colors.white,
-      ),
-      textTheme: appTextTheme.apply(
-        bodyColor: Colors.white,
-        displayColor: Colors.white,
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFF1E1E1E),
-        foregroundColor: Colors.white,
-        titleTextStyle: GoogleFonts.oswald(fontSize: 24, fontWeight: FontWeight.bold),
-        centerTitle: true,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-          backgroundColor: primarySeedColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.bold),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.grey.shade200, width: 1),
         ),
       ),
     );
@@ -130,8 +98,8 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Charlotte Folk',
-          theme: lightTheme,
-          darkTheme: darkTheme,
+          theme: theme,
+          darkTheme: theme, // Same theme for dark mode for a consistent look
           themeMode: themeProvider.themeMode,
           home: const AuthWrapper(),
         );

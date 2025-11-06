@@ -1,38 +1,67 @@
-# Project Blueprint: eCommerce App
+# Project Blueprint: Charlotte Folk Mobile App
 
 ## Overview
 
-This document outlines the features, design, and architecture of a modern eCommerce application built with Flutter and Firebase. The goal is to create a beautiful, responsive, and feature-rich app.
+This document outlines the design, features, and development plan for the Charlotte Folk mobile application. The goal is to create a beautiful, functional, and user-friendly e-commerce experience based on the brand's existing web presence.
 
-## Design Inspiration
+## Current State & Implemented Features (Modules 1-8)
 
-*   **Website:** [charlottefolk.co](https://charlottefolk.co/)
-*   **Aesthetic:** Clean, modern, minimalist, with a strong focus on typography and bold colors.
-*   **Logo:** The "CHARLOTTE FOLK STUDIOS" logo is used for the splash screen and app icon.
+The application currently incorporates the following features:
 
-## Implemented Features (Current State)
+*   **User Authentication:**
+    *   Email/Password sign-up and login.
+    *   Persistent login state.
+    *   Role-based access control (`user` vs. `admin`).
 
-*   **Project Setup (Module 1):**
-    *   Flutter project created and Firebase configured.
+*   **Product Management (Admin):**
+    *   An admin panel for creating, updating, and deleting products.
+    *   Products include name, description, price, and an image URL.
 
-*   **Branding & Splash Screen (Module 2):**
-    *   `flutter_native_splash` configured and generated.
+*   **Product Catalog (User):**
+    *   A home screen that displays all products in a grid view.
+    *   A product detail screen to view more information about a specific product.
 
-*   **Theming (Module 3):**
-    *   A full Material 3 theme system with `google_fonts` and `provider` for light/dark mode toggle.
+*   **Shopping Cart:**
+    *   Users can add and remove products from their shopping cart.
+    *   The cart icon in the app bar updates with a badge showing the number of items.
+    *   A dedicated cart screen shows all items, quantities, and the total price.
 
-## Plan for Current Request (Authentication UI)
+*   **Theming & Styling:**
+    *   Basic light/dark mode support.
+    *   Initial Material Design 3 theme.
 
-1.  **Create File Structure:**
-    *   Create the `lib/screens` directory.
-    *   Create `login_screen.dart` and `signup_screen.dart`.
-2.  **Build Login Screen:**
-    *   Implement the `LoginScreen` as a `StatefulWidget`.
-    *   Add a form with email and password fields, including validation.
-    *   Add a login button and a text button to navigate to the sign-up screen.
-3.  **Build Sign Up Screen:**
-    *   Create the `SignUpScreen` based on the login screen.
-    *   Adjust titles and button text.
-    *   Implement navigation back to the login screen.
-4.  **Update `main.dart`:**
-    *   Set `LoginScreen` as the initial route for the app.
+## Current Task: UI Upgrade to `charlottefolk.co` Style
+
+This section outlines the plan to elevate the app's user interface to match the sophisticated and minimalist aesthetic of the [charlottefolk.co](https://charlottefolk.co/) website.
+
+### 1. Analyze Visual Identity
+
+*   **Color Palette:** Minimalist and high-contrast.
+    *   **Primary Background:** White (`#FFFFFF`)
+    *   **Primary Text/Elements:** Black (`#000000`)
+    *   **Accent/Call-to-Action:** Vibrant Blue (e.g., `#4A90E2`)
+*   **Typography:** A dual-font system for elegance and readability.
+    *   **Headings/Titles:** A classic Serif font (e.g., `Playfair Display`).
+    *   **Body/UI Text:** A clean Sans-Serif font (e.g., `Lato`).
+*   **Layout & Components:** Clean, spacious, and minimalist.
+    *   Emphasis on product imagery.
+    *   Generous use of white space.
+    *   Simple, clear user interface components.
+
+### 2. Implementation Plan
+
+*   **Phase 1: Foundational Theming (In Progress)**
+    *   **Action:** Update `lib/main.dart`.
+    *   **Details:**
+        *   Replace the existing `ColorScheme` with the new black, white, and blue palette.
+        *   Define a new `TextTheme` using `google_fonts` to import and apply `Playfair Display` and `Lato`.
+        *   Update default styles for `AppBar`, `ElevatedButton`, and `Card` to reflect the new design.
+
+*   **Phase 2: Component Redesign**
+    *   **Action:** Refactor `lib/widgets/product_card.dart`.
+    *   **Details:** Change the layout from a text overlay to a clean card with the image at the top and the product name and price displayed neatly below, center-aligned.
+
+*   **Phase 3: Screen-by-Screen Refresh**
+    *   **Action:** Update all `lib/screens/*.dart` files.
+    *   **Details:** Adjust the layout and spacing of each screen to align with the new minimalist aesthetic, ensuring a consistent and polished user experience.
+
