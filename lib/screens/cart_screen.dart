@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:myapp/providers/cart_provider.dart';
+import 'package:myapp/screens/order_success_screen.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +20,7 @@ class CartScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shopping Cart'),
+        title: const Text('Your Cart'),
       ),
       body: Column(
         children: [
@@ -33,7 +41,6 @@ class CartScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: Row(
                           children: [
-                            // We will add an image here in a later step
                             const SizedBox(width: 100, height: 100, child: Placeholder()),
                             const SizedBox(width: 16),
                             Expanded(
@@ -64,26 +71,12 @@ class CartScreen extends StatelessWidget {
                     },
                   ),
           ),
-          // Summary and Checkout Button
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.scaffoldBackgroundColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  spreadRadius: 1,
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  child: Row(
+          
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Total:', style: theme.textTheme.titleLarge?.copyWith(fontSize: 20)),
@@ -93,16 +86,52 @@ class CartScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: cart.items.isEmpty ? null : () { /* Checkout Logic */ },
-                    child: const Text('Proceed to Checkout'),
-                  ),
-                ),
-              ],
+            ),
+          ),
+          
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+              ),
+              onPressed: (_isLoading || cart.items.isEmpty) ? null : () async {
+                setState(() {
+                  _isLoading = true;
+                });
+
+                try {
+                  final cartProvider = Provider.of<CartProvider>(context, listen: false);
+                  
+                  await cartProvider.placeOrder();
+                  await cartProvider.clearCart();
+                  
+                  if(mounted) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => const OrderSuccessScreen()),
+                      (route) => false,
+                    );
+                  }
+
+                } catch (e) {
+                  if(mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to place order: $e')),
+                    );
+                  }
+                } finally {
+                  if (mounted) {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }
+                }
+              },
+              child: _isLoading 
+                  ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : const Text('Place Order'),
             ),
           ),
         ],
